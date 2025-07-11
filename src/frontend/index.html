@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <div>
+	<input type='text' placeholder='Enter substring' id='inputsubstring'>
+	<button onclick='findSubstring()'>Search for substring</button>
+	<p>После нажатия на кнопку обновите страницу, появится ID задачи и ее статус. На текст, который появится можно нажать.</p>
+    </div>
+    <div>
+	{% if data %}
+	    {% for i in data %}
+		<p id = '{{ i[0] }}_'><a id = {{ i[0] }} onclick="findTaskID(this.id)">Task ID: {{ i[0] }}; Substring: {{ i[1] }}; Status {{ i[2] }}</a></p>
+	    {% endfor %}
+	{% endif %}
+    </div>
+</body>
+</html>
+
+<script>
+    function findSubstring(){
+	var value = document.getElementById('inputsubstring').value;
+	const response = fetch('/find_substring/' + value, {
+	    method: 'GET',
+	    headers: {
+		'Content-Type': 'application/json'
+	    },
+	}).then(function(response){
+	    return response.text;
+	});
+    };
+    function findTaskID(id, limit){
+	const response = fetch('/get_data_by_task_id/' + id, {
+	    method: 'GET',
+	    headers: {
+		'Content-Type': 'application/json'
+	    },
+	}).then(function(response){
+	    return response.json();
+	}).then(function(data){
+	    var res = JSON.parse(JSON.stringify(data, null, ''));
+	    function show(){
+		var html = '<details><summary>' + id + '</summary><p>';
+		for(let key in res){
+		    let string = res[key]['string'];
+		    let start = res[key]['start'];
+		    let end = res[key]['end'];
+
+		    let first_string_part = string.substring(0, start);
+		    let middle_string_part = '<span style="color:#538b01">' + string.substring(start, end) + '</span>'
+		    let last_string_part = string.substring(end, string.length);
+		    html += '<br>[' + key + ']' + ' ' + first_string_part + middle_string_part + last_string_part;
+		}
+		var element = document.getElementById(id + '_');
+		element.innerHTML = html + '</p></details>';
+	    };
+	    show();
+	});
+	
+    };
+</script>
