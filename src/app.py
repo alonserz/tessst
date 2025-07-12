@@ -31,7 +31,7 @@ def find_substring_route(substring: str):
     task_id = task.id
     is_ready = task.ready()
     add_new_task_to_db(engine, task_id, substring, is_ready)
-    return JSONResponse(status_code = status.HTTP_200_OK, content = (task_id, is_ready))
+    return JSONResponse(status_code = status.HTTP_200_OK, content = (task_id, is_ready, substring))
 
 @app.get('/')
 def main(request: Request):
